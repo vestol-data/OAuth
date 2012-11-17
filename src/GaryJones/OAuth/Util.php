@@ -6,7 +6,7 @@ class Util
     public static function urlencodeRfc3986($input)
     {
         if (is_array($input)) {
-            return array_map(array('Eher\OAuth\Util', 'urlencode_rfc3986'), $input);
+            return array_map(array('GaryJones\OAuth\Util', 'urlencodeRfc3986'), $input);
         } elseif (is_scalar($input)) {
             return str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($input)));
         } else {
