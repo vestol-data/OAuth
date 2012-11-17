@@ -1,5 +1,5 @@
 {
-    "name": "GaryJones/OAuth",
+    "name": "garyjones/oauth",
 	"description": "Based on Andy Smith's basic PHP library for OAuth 1.0a",
     "type": "library",
 	"keywords": ["oauth"],
