@@ -14,7 +14,7 @@ class OAuthRequest
     public function __construct($http_method, $http_url, $parameters = null)
     {
         $parameters = ($parameters) ? $parameters : array();
-        $this->parameters = array_merge(Util::parse_parameters(parse_url($http_url, PHP_URL_QUERY)), $parameters);
+        $this->parameters = array_merge(Util::parseParameters(parse_url($http_url, PHP_URL_QUERY)), $parameters);
         $this->http_method = $http_method;
         $this->http_url = $http_url;
     }
@@ -38,10 +38,10 @@ class OAuthRequest
         // parsed parameter-list
         if (!$parameters) {
             // Find request headers
-            $request_headers = Util::get_headers();
+            $request_headers = Util::getHeaders();
 
             // Parse the query-string to find GET parameters
-            $parameters = Util::parse_parameters($_SERVER['QUERY_STRING']);
+            $parameters = Util::parseParameters($_SERVER['QUERY_STRING']);
 
             // It's a POST request of the proper content-type, so parse POST
             // parameters and add those overriding any duplicates from GET
@@ -49,7 +49,7 @@ class OAuthRequest
                 && isset($request_headers['Content-Type'])
                 && strstr($request_headers['Content-Type'], 'application/x-www-form-urlencoded')
             ) {
-                $post_data = Util::parse_parameters(
+                $post_data = Util::parseParameters(
                     file_get_contents(self::$POST_INPUT)
                 );
                 $parameters = array_merge($parameters, $post_data);
@@ -59,7 +59,7 @@ class OAuthRequest
             // and add those overriding any duplicates from GET or POST
             if (isset($request_headers['Authorization']) &&
                 substr($request_headers['Authorization'], 0, 6) == 'OAuth ') {
-                $header_parameters = Util::split_header(
+                $header_parameters = Util::splitHeader(
                     $request_headers['Authorization']
                 );
                 $parameters = array_merge($parameters, $header_parameters);
@@ -75,9 +75,9 @@ class OAuthRequest
     public static function fromConsumerAndToken($consumer, $token, $http_method, $http_url, $parameters = null)
     {
         $parameters = ($parameters) ? $parameters : array();
-        $defaults = array("oauth_version" => Request::$version,
-            "oauth_nonce" => Request::generate_nonce(),
-            "oauth_timestamp" => Request::generate_timestamp(),
+        $defaults = array("oauth_version" => OAuthRequest::$version,
+            "oauth_nonce" => OAuthRequest::generateNonce(),
+            "oauth_timestamp" => OAuthRequest::generateTimestamp(),
             "oauth_consumer_key" => $consumer->key);
         if ($token) {
             $defaults['oauth_token'] = $token->key;
@@ -134,7 +134,7 @@ class OAuthRequest
             unset($params['oauth_signature']);
         }
 
-        return Util::build_http_query($params);
+        return Util::buildHttpQuery($params);
     }
 
     /**
@@ -152,7 +152,7 @@ class OAuthRequest
             $this->getSignableParameters()
         );
 
-        $encoded_parts = Util::urlencode_rfc3986($parts);
+        $encoded_parts = Util::urlencodeRfc3986($parts);
 
         return implode('&', $encoded_parts);
     }
@@ -203,7 +203,7 @@ class OAuthRequest
      */
     public function toPostdata()
     {
-        return Util::build_http_query($this->parameters);
+        return Util::buildHttpQuery($this->parameters);
     }
 
     /**
@@ -213,7 +213,7 @@ class OAuthRequest
     {
         $first = true;
         if ($realm) {
-            $out = 'Authorization: OAuth realm="' . Util::urlencode_rfc3986($realm) . '"';
+            $out = 'Authorization: OAuth realm="' . Util::urlencodeRfc3986($realm) . '"';
             $first = false;
         } else {
             $out = 'Authorization: OAuth';
@@ -228,9 +228,9 @@ class OAuthRequest
                 throw new OAuthException('Arrays not supported in headers');
             }
             $out .= ($first) ? ' ' : ',';
-            $out .= Util::urlencode_rfc3986($k) .
+            $out .= Util::urlencodeRfc3986($k) .
                 '="' .
-                Util::urlencode_rfc3986($v) .
+                Util::urlencodeRfc3986($v) .
                 '"';
             $first = false;
         }
