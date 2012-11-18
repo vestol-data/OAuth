@@ -1,5 +1,5 @@
 <?php
-namespace GamajoTech\OAuth;
+namespace GaryJones\OAuth;
 
 class OAuthRequest
 {
