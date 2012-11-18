@@ -24,7 +24,9 @@
         "php": ">=5.3.0"
     },
 	"require-dev": {
-		"squizlabs/php_codesniffer": "*"
+		"squizlabs/php_codesniffer": "*",
+		"phpunit/phpunit": "*",
+		"mockery/mockery": "*"
 	},
     "autoload": {
         "psr-0": {
