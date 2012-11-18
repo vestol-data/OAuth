@@ -15,14 +15,14 @@ class HmacSha1 extends SignatureMethod
         return 'HMAC-SHA1';
     }
 
-    public function buildSignature($request, $consumer, $token)
+    public function buildSignature($request, $client, $token)
     {
         $base_string = $request->getSignatureBaseString();
         $request->base_string = $base_string;
 
         $key_parts = array(
-            $consumer->secret,
-            ($token) ? $token->secret : ''
+            $client->getSecret(),
+            ($token) ? $token->getSecret() : ''
         );
 
         $key_parts = Util::urlencodeRfc3986($key_parts);

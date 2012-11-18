@@ -14,28 +14,31 @@ abstract class SignatureMethod
     abstract public function getName();
 
     /**
-     * Build up the signature
+     * Build up the signature.
+     *
      * NOTE: The output of this function MUST NOT be urlencoded.
      * the encoding is handled in OAuthRequest when the final
-     * request is serialized
-     * @param OAuthRequest $request
-     * @param OAuthConsumer $consumer
-     * @param OAuthToken $token
+     * request is serialized.
+     *
+     * @param GaryJones\OAuth\OAuthRequest $request
+     * @param GaryJones\OAuth\Client $client
+     * @param GaryJones\OAuth\Token $token
      * @return string
      */
-    abstract public function buildSignature($request, $consumer, $token);
+    abstract public function buildSignature($request, $client, $token);
 
     /**
-     * Verifies that a given signature is correct
-     * @param OAuthRequest $request
-     * @param OAuthConsumer $consumer
-     * @param OAuthToken $token
+     * Verifies that a given signature is correct.
+     *
+     * @param GaryJones\OAuth\OAuthRequest $request
+     * @param GaryJones\OAuth\Consumer $client
+     * @param GaryJones\OAuth\Token $token
      * @param string $signature
      * @return bool
      */
-    public function checkSignature($request, $consumer, $token, $signature)
+    public function checkSignature($request, $client, $token, $signature)
     {
-        $built = $this->buildSignature($request, $consumer, $token);
+        $built = $this->buildSignature($request, $client, $token);
         return $built == $signature;
     }
 }

@@ -4,7 +4,7 @@ namespace GaryJones\OAuth;
 /**
  * The RSA-SHA1 signature method uses the RSASSA-PKCS1-v1_5 signature algorithm as defined in
  * [RFC3447] section 8.2 (more simply known as PKCS#1), using SHA-1 as the hash function for
- * EMSA-PKCS1-v1_5. It is assumed that the Consumer has provided its RSA public key in a
+ * EMSA-PKCS1-v1_5. It is assumed that the Client has provided its RSA public key in a
  * verified way to the Service Provider, in a manner which is beyond the scope of this
  * specification.
  *   - Chapter 9.3 ("RSA-SHA1")
@@ -17,7 +17,7 @@ abstract class RsaSha1 extends SignatureMethod
     }
 
     // Up to the SP to implement this lookup of keys. Possible ideas are:
-    // (1) do a lookup in a table of trusted certs keyed off of consumer
+    // (1) do a lookup in a table of trusted certs keyed off of client
     // (2) fetch via http using a url provided by the requester
     // (3) some sort of specific discovery code based on request
     //
@@ -25,12 +25,12 @@ abstract class RsaSha1 extends SignatureMethod
     abstract protected function fetchPublicCert(&$request);
 
     // Up to the SP to implement this lookup of keys. Possible ideas are:
-    // (1) do a lookup in a table of trusted certs keyed off of consumer
+    // (1) do a lookup in a table of trusted certs keyed off of client
     //
     // Either way should return a string representation of the certificate
     abstract protected function fetchPrivateCert(&$request);
 
-    public function buildSignature($request, $consumer, $token)
+    public function buildSignature($request, $client, $token)
     {
         $base_string = $request->getSignatureBaseString();
         $request->base_string = $base_string;
@@ -50,7 +50,7 @@ abstract class RsaSha1 extends SignatureMethod
         return base64_encode($signature);
     }
 
-    public function checkSignature($request, $consumer, $token, $signature)
+    public function checkSignature($request, $client, $token, $signature)
     {
         $decoded_sig = base64_decode($signature);
 

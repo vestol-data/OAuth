@@ -72,15 +72,15 @@ class OAuthRequest
     /**
      * pretty much a helper function to set up the request
      */
-    public static function fromConsumerAndToken($consumer, $token, $http_method, $http_url, $parameters = null)
+    public static function fromClientAndToken($client, $token, $http_method, $http_url, $parameters = null)
     {
         $parameters = ($parameters) ? $parameters : array();
         $defaults = array("oauth_version" => OAuthRequest::$version,
             "oauth_nonce" => OAuthRequest::generateNonce(),
             "oauth_timestamp" => OAuthRequest::generateTimestamp(),
-            "oauth_consumer_key" => $consumer->key);
+            "oauth_consumer_key" => $client->getKey());
         if ($token) {
-            $defaults['oauth_token'] = $token->key;
+            $defaults['oauth_token'] = $token->getKey();
         }
 
         $parameters = array_merge($defaults, $parameters);
@@ -250,16 +250,16 @@ class OAuthRequest
         return $this->toUrl();
     }
 
-    public function signRequest($signature_method, $consumer, $token)
+    public function signRequest($signature_method, $client, $token)
     {
         $this->setParameter('oauth_signature_method', $signature_method->getName(), false);
-        $signature = $this->buildSignature($signature_method, $consumer, $token);
+        $signature = $this->buildSignature($signature_method, $client, $token);
         $this->setParameter('oauth_signature', $signature, false);
     }
 
-    public function buildSignature($signature_method, $consumer, $token)
+    public function buildSignature($signature_method, $client, $token)
     {
-        $signature = $signature_method->buildSignature($this, $consumer, $token);
+        $signature = $signature_method->buildSignature($this, $client, $token);
         return $signature;
     }
 

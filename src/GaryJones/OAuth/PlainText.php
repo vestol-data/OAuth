@@ -14,7 +14,7 @@ class PlainText extends SignatureMethod
     }
 
     /**
-     * oauth_signature is set to the concatenated encoded values of the Consumer Secret and
+     * oauth_signature is set to the concatenated encoded values of the Client Secret and
      * Token Secret, separated by a '&' character (ASCII code 38), even if either secret is
      * empty. The result MUST be encoded again.
      *   - Chapter 9.4.1 ("Generating Signatures")
@@ -22,11 +22,11 @@ class PlainText extends SignatureMethod
      * Please note that the second encoding MUST NOT happen in the SignatureMethod, as
      * OAuthRequest handles this!
      */
-    public function buildSignature($request, $consumer, $token)
+    public function buildSignature($request, $client, $token)
     {
         $key_parts = array(
-            $consumer->secret,
-            ($token) ? $token->secret : ''
+            $client->getSecret(),
+            ($token) ? $token->getSecret() : ''
         );
 
         $key_parts = Util::urlencodeRfc3986($key_parts);

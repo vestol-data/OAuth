@@ -4,8 +4,8 @@ namespace GaryJones\OAuth;
 class Token
 {
     // access tokens and request tokens
-    public $key;
-    public $secret;
+    protected $key;
+    protected $secret;
 
     /**
      * key = the token
@@ -15,6 +15,16 @@ class Token
     {
         $this->key = $key;
         $this->secret = $secret;
+    }
+
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    public function getSecret()
+    {
+        return $this->secret;
     }
 
     /**

@@ -1,10 +1,10 @@
 <?php
 namespace GaryJones\OAuth;
 
-class Consumer
+class Client
 {
-    public $key;
-    public $secret;
+    protected $key;
+    protected $secret;
 
     public function __construct($key, $secret, $callback_url = null)
     {
@@ -13,8 +13,18 @@ class Consumer
         $this->callback_url = $callback_url;
     }
 
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    public function getSecret()
+    {
+        return $this->secret;
+    }
+
     public function __toString()
     {
-        return "OAuthConsumer[key=$this->key,secret=$this->secret]";
+        return "OAuthClient[key=$this->key,secret=$this->secret]";
     }
 }

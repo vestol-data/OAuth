@@ -29,16 +29,16 @@ class OAuthServer
     {
         $this->getVersion($request);
 
-        $consumer = $this->getConsumer($request);
+        $client = $this->getClient($request);
 
         // no token required for the initial token request
         $token = null;
 
-        $this->checkSignature($request, $consumer, $token);
+        $this->checkSignature($request, $client, $token);
 
         // Rev A change
         $callback = $request->getParameter('oauth_callback');
-        $new_token = $this->data_store->newRequestToken($consumer, $callback);
+        $new_token = $this->data_store->newRequestToken($client, $callback);
 
         return $new_token;
     }
@@ -51,16 +51,16 @@ class OAuthServer
     {
         $this->getVersion($request);
 
-        $consumer = $this->getConsumer($request);
+        $client = $this->getClient($request);
 
         // requires authorized request token
-        $token = $this->getToken($request, $consumer, 'request');
+        $token = $this->getToken($request, $client, 'request');
 
-        $this->checkSignature($request, $consumer, $token);
+        $this->checkSignature($request, $client, $token);
 
         // Rev A change
         $verifier = $request->getParameter('oauth_verifier');
-        $new_token = $this->data_store->newAccessToken($token, $consumer, $verifier);
+        $new_token = $this->data_store->newAccessToken($token, $client, $verifier);
 
         return $new_token;
     }
@@ -71,10 +71,10 @@ class OAuthServer
     public function verifyRequest(&$request)
     {
         $this->getVersion($request);
-        $consumer = $this->getConsumer($request);
-        $token = $this->getToken($request, $consumer, 'access');
-        $this->checkSignature($request, $consumer, $token);
-        return array($consumer, $token);
+        $client = $this->getClient($request);
+        $token = $this->getToken($request, $client, 'access');
+        $this->checkSignature($request, $client, $token);
+        return array($client, $token);
     }
 
     // Internals from here
@@ -118,32 +118,32 @@ class OAuthServer
     }
 
     /**
-     * try to find the consumer for the provided request's consumer key
+     * try to find the client for the provided request's client key
      */
-    private function getConsumer($request)
+    private function getClient($request)
     {
-        $consumer_key = $request instanceof OAuthRequest ? $request->getParameter('oauth_consumer_key') : null;
+        $client_key = $request instanceof OAuthRequest ? $request->getParameter('oauth_consumer_key') : null;
 
-        if (!$consumer_key) {
-            throw new OAuthException('Invalid consumer key');
+        if (!$client_key) {
+            throw new OAuthException('Invalid client key');
         }
 
-        $consumer = $this->data_store->lookupClient($consumer_key);
-        if (!$consumer) {
-            throw new OAuthException('Invalid consumer');
+        $client = $this->data_store->lookupClient($client_key);
+        if (!$client) {
+            throw new OAuthException('Invalid client');
         }
 
-        return $consumer;
+        return $client;
     }
 
     /**
      * try to find the token for the provided request's token key
      */
-    private function getToken($request, $consumer, $token_type = 'access')
+    private function getToken($request, $client, $token_type = 'access')
     {
         $token_field = $request instanceof OAuthRequest ? $request->getParameter('oauth_token') : null;
 
-        $token = $this->data_store->lookupToken($consumer, $token_type, $token_field);
+        $token = $this->data_store->lookupToken($client, $token_type, $token_field);
         if (!$token) {
             throw new OAuthException("Invalid $token_type token: $token_field");
         }
@@ -154,19 +154,19 @@ class OAuthServer
      * all-in-one function to check the signature on a request
      * should guess the signature method appropriately
      */
-    private function checkSignature($request, $consumer, $token)
+    private function checkSignature($request, $client, $token)
     {
         // this should probably be in a different method
         $timestamp = $request instanceof OAuthRequest ? $request->getParameter('oauth_timestamp') : null;
         $nonce = $request instanceof OAuthRequest ? $request->getParameter('oauth_nonce') : null;
 
         $this->checkTimestamp($timestamp);
-        $this->checkNonce($consumer, $token, $nonce, $timestamp);
+        $this->checkNonce($client, $token, $nonce, $timestamp);
 
         $signature_method = $this->getSignatureMethod($request);
 
         $signature = $request->getParameter('oauth_signature');
-        $valid_sig = $signature_method->checkSignature($request, $consumer, $token, $signature);
+        $valid_sig = $signature_method->checkSignature($request, $client, $token, $signature);
 
         if (!$valid_sig) {
             throw new OAuthException('Invalid signature');
@@ -192,14 +192,14 @@ class OAuthServer
     /**
      * check that the nonce is not repeated
      */
-    private function checkNonce($consumer, $token, $nonce, $timestamp)
+    private function checkNonce($client, $token, $nonce, $timestamp)
     {
         if (!$nonce) {
             throw new OAuthException('Missing nonce parameter. The parameter is required');
         }
 
         // verify that the nonce is uniqueish
-        $found = $this->data_store->lookupNonce($consumer, $token, $nonce, $timestamp);
+        $found = $this->data_store->lookupNonce($client, $token, $nonce, $timestamp);
         if ($found) {
             throw new OAuthException('Nonce already used: ' . $nonce);
         }
