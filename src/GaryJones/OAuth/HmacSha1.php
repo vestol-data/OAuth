@@ -12,7 +12,7 @@ class HmacSha1 extends SignatureMethod
 {
     public function getName()
     {
-        return "HMAC-SHA1";
+        return 'HMAC-SHA1';
     }
 
     public function buildSignature($request, $consumer, $token)
@@ -22,7 +22,7 @@ class HmacSha1 extends SignatureMethod
 
         $key_parts = array(
             $consumer->secret,
-            ($token) ? $token->secret : ""
+            ($token) ? $token->secret : ''
         );
 
         $key_parts = Util::urlencodeRfc3986($key_parts);
