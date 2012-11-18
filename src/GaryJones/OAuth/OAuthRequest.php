@@ -174,8 +174,16 @@ class OAuthRequest
         $parts = parse_url($this->http_url);
 
         $scheme = (isset($parts['scheme'])) ? $parts['scheme'] : 'http';
-        $port = (isset($parts['port'])) ? $parts['port'] : (($scheme == 'https') ? '443' : '80');
-        $host = (isset($parts['host'])) ? $parts['host'] : '';
+        $port = (isset($parts['port'])) ? $parts['port'] : '';
+        if (isset($parts['host'])) {
+            // parse_url in PHP 5.4.8 includes the port in the host, so we need to strip it.
+            $host_and_maybe_port = explode(':', $parts['host']);
+            $host = $host_and_maybe_port[0];
+        } else {
+            $host = '';
+        }
+        // For PHP 5.4+, use:
+        // $host = (isset($parts['host'])) ? explode(':', $parts['host'])[0] : '';
         $path = (isset($parts['path'])) ? $parts['path'] : '';
 
         if (($scheme == 'https' && $port != '443')
