@@ -4,7 +4,7 @@
     "type": "library",
 	"keywords": ["oauth"],
 	"homepage": "https://github.com/GaryJones/OAuth",
-	"license": "BSD-3-Clause",
+	"license": "MIT",
     "authors": [
         {
             "name": "Gary Jones",
