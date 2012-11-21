@@ -1,17 +1,67 @@
 <?php
+/**
+ * OAuth
+ *
+ * @package OAuth
+ * @author Andy Smith
+ * @author Gary Jones <gary@garyjones.co.uk>
+ * @license https://raw.github.com/GaryJones/OAuth/master/LICENSE MIT
+ * @link https://github.com/GaryJones/OAuth
+ */
+
 namespace GaryJones\OAuth;
 
-class OAuthRequest
+/**
+ * Handle an OAuth request.
+ *
+ * @package OAuth
+ * @author Andy Smith
+ */
+class Request
 {
+    /**
+     * HTTP parameters.
+     *
+     * @var array
+     */
     protected $parameters;
+
+    /**
+     * HTTP method - likely GET or POST.
+     *
+     * @var string HTTP method.
+     */
     protected $http_method;
+
+    /**
+     * The URL the request was made to.
+     *
+     * @var string Request URL.
+     */
     protected $http_url;
-    // for debug purposes
-    public $base_string;
+
+    /**
+     * OAuth version.
+     *
+     * @var string
+     */
     public static $version = '1.0';
+
+    /**
+     * Stream of POSTed file.
+     *
+     * @var string
+     */
     public static $POST_INPUT = 'php://input';
 
-    public function __construct($http_method, $http_url, $parameters = null)
+    /**
+     * Construct a Request object.
+     *
+     * @param string $http_method Request HTTP method.
+     * @param string $http_url    Request URL.
+     * @param array  $parameters  HTTP parameters.
+     */
+    public function __construct($http_method, $http_url, array $parameters = null)
     {
         $parameters = ($parameters) ? $parameters : array();
         $this->parameters = array_merge(Util::parseParameters(parse_url($http_url, PHP_URL_QUERY)), $parameters);
@@ -20,11 +70,20 @@ class OAuthRequest
     }
 
     /**
-     * attempt to build up a request from what was passed to the server
+     * a
+     */
+    /**
+     * Attempt to build up a request from what was passed to the server.
+     *
+     * @param string $http_method Request HTTP method.
+     * @param string $http_url    Request URL.
+     * @param array  $parameters  HTTP parameters.
+     *
+     * @return GaryJones\OAuth\Request
      */
     public static function fromRequest($http_method = null, $http_url = null, $parameters = null)
     {
-        $scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") ? 'http' : 'https';
+        $scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') ? 'http' : 'https';
         $http_url = ($http_url) ? $http_url : $scheme .
             '://' . $_SERVER['HTTP_HOST'] .
             ':' .
@@ -45,7 +104,7 @@ class OAuthRequest
 
             // It's a POST request of the proper content-type, so parse POST
             // parameters and add those overriding any duplicates from GET
-            if ($http_method == "POST"
+            if ('POST' == $http_method
                 && isset($request_headers['Content-Type'])
                 && strstr($request_headers['Content-Type'], 'application/x-www-form-urlencoded')
             ) {
@@ -66,28 +125,49 @@ class OAuthRequest
             }
         }
 
-        return new OAuthRequest($http_method, $http_url, $parameters);
+        return new Request($http_method, $http_url, $parameters);
     }
 
     /**
-     * pretty much a helper function to set up the request
+     * Helper function to set up the request.
+     *
+     * @param GaryJones\OAuth\Client $client
+     * @param GaryJones\OAuth\Token  $token
+     * @param string                 $http_method
+     * @param string                 $http_url
+     * @param array                  $parameters
+     *
+     * @return GaryJones\OAuth\Request
      */
-    public static function fromClientAndToken($client, $token, $http_method, $http_url, $parameters = null)
-    {
+    public static function fromClientAndToken(
+        Client $client,
+        Token $token,
+        $http_method,
+        $http_url,
+        array $parameters = null
+    ) {
         $parameters = ($parameters) ? $parameters : array();
-        $defaults = array("oauth_version" => OAuthRequest::$version,
-            "oauth_nonce" => OAuthRequest::generateNonce(),
-            "oauth_timestamp" => OAuthRequest::generateTimestamp(),
-            "oauth_consumer_key" => $client->getKey());
+        $defaults = array(
+            'oauth_version' => Request::$version,
+            'oauth_nonce' => Request::generateNonce(),
+            'oauth_timestamp' => Request::generateTimestamp(),
+            'oauth_consumer_key' => $client->getKey());
         if ($token) {
             $defaults['oauth_token'] = $token->getKey();
         }
 
         $parameters = array_merge($defaults, $parameters);
 
-        return new OAuthRequest($http_method, $http_url, $parameters);
+        return new Request($http_method, $http_url, $parameters);
     }
 
+    /**
+     * Add additional parameter to Request.
+     *
+     * @param string $name
+     * @param string $value
+     * @param bool   $allow_duplicates
+     */
     public function setParameter($name, $value, $allow_duplicates = true)
     {
         if ($allow_duplicates && isset($this->parameters[$name])) {
@@ -104,16 +184,33 @@ class OAuthRequest
         }
     }
 
+    /**
+     * Get single request parameter by name.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
     public function getParameter($name)
     {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
+    /**
+     * Get all request parameters.
+     *
+     * @return array
+     */
     public function getParameters()
     {
         return $this->parameters;
     }
 
+    /**
+     * Unset single request parameter by name.
+     *
+     * @param string $name
+     */
     public function unsetParameter($name)
     {
         unset($this->parameters[$name]);
@@ -121,12 +218,13 @@ class OAuthRequest
 
     /**
      * The request parameters, sorted and concatenated into a normalized string.
+     *
      * @return string
      */
     public function getSignableParameters()
     {
         // Grab all parameters
-        $params = $this->parameters;
+        $params = $this->getParameters();
 
         // Remove oauth_signature if present
         // Ref: Spec: 9.1.1 ("The oauth_signature parameter MUST be excluded.")
@@ -158,7 +256,9 @@ class OAuthRequest
     }
 
     /**
-     * Just uppercases the http method
+     * Uppercases the HTTP method.
+     *
+     * @return string
      */
     public function getNormalizedHttpMethod()
     {
@@ -166,8 +266,10 @@ class OAuthRequest
     }
 
     /**
-     * parses the url and rebuilds it to be
+     * Parses the url and rebuilds it to be
      * scheme://host/path
+     *
+     * @return string URL
      */
     public function getNormalizedHttpUrl()
     {
@@ -194,7 +296,9 @@ class OAuthRequest
     }
 
     /**
-     * builds a url usable for a GET request
+     * Builds a URL usable for a GET request.
+     *
+     * @return string
      */
     public function toUrl()
     {
@@ -207,15 +311,23 @@ class OAuthRequest
     }
 
     /**
-     * builds the data one would send in a POST request
+     * Builds the data one would send in a POST request.
+     *
+     * @return string
      */
     public function toPostdata()
     {
-        return Util::buildHttpQuery($this->parameters);
+        return Util::buildHttpQuery($this->getParameters());
     }
 
     /**
-     * builds the Authorization: header
+     * Builds the Authorization: header.
+     *
+     * @param string $realm Authorization realm.
+     *
+     * @return string
+     *
+     * @throws GaryJones\OAuth\Exception
      */
     public function toHeader($realm = null)
     {
@@ -233,7 +345,7 @@ class OAuthRequest
                 continue;
             }
             if (is_array($v)) {
-                throw new OAuthException('Arrays not supported in headers');
+                throw new Exception('Arrays not supported in headers');
             }
             $out .= ($first) ? ' ' : ',';
             $out .= Util::urlencodeRfc3986($k) .
@@ -245,26 +357,48 @@ class OAuthRequest
         return $out;
     }
 
+    /**
+     * Return request object cast as string.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->toUrl();
     }
 
-    public function signRequest($signature_method, $client, $token)
+    /**
+     * Build signature and add it as parameter.
+     *
+     * @param string                 $signature_method
+     * @param GaryJones\OAuth\Client $client
+     * @param GaryJones\OAuth\Token  $token
+     */
+    public function signRequest($signature_method, Client $client, Token $token)
     {
         $this->setParameter('oauth_signature_method', $signature_method->getName(), false);
         $signature = $this->buildSignature($signature_method, $client, $token);
         $this->setParameter('oauth_signature', $signature, false);
     }
 
-    public function buildSignature($signature_method, $client, $token)
+    /**
+     * Build signature.
+     *
+     * @param string                 $signature_method
+     * @param GaryJones\OAuth\Client $client
+     * @param GaryJones\OAuth\Token  $token
+     *
+     * @return string
+     */
+    public function buildSignature($signature_method, Client $client, Token $token)
     {
-        $signature = $signature_method->buildSignature($this, $client, $token);
-        return $signature;
+        return $signature_method->buildSignature($this, $client, $token);
     }
 
     /**
-     * util function: current timestamp
+     * Get current time.
+     *
+     * @return int Timestamp.
      */
     private static function generateTimestamp()
     {
@@ -272,13 +406,12 @@ class OAuthRequest
     }
 
     /**
-     * util function: current nonce
+     * Generate nonce.
+     *
+     * @return string 32-character hexadecimal number.
      */
     private static function generateNonce()
     {
-        $mt = microtime();
-        $rand = mt_rand();
-
-        return md5($mt . $rand); // md5s look nicer than numbers
+        return md5(microtime() . mt_rand()); // md5s look nicer than numbers
     }
 }

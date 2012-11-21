@@ -1,44 +1,47 @@
 <?php
+/**
+ * OAuth
+ *
+ * @package OAuth
+ * @author Andy Smith
+ * @author Gary Jones <gary@garyjones.co.uk>
+ * @license https://raw.github.com/GaryJones/OAuth/master/LICENSE MIT
+ * @link https://github.com/GaryJones/OAuth
+ */
+
 namespace GaryJones\OAuth;
 
-class Token
+/**
+ * Token holds the properties of a single token.
+ *
+ * This class deals with both temporary (request) and token (access) credntials.
+ *
+ * @package OAuth
+ * @author Gary Jones <gary@garyjones.co.uk>
+ */
+class Token extends Credential
 {
-    // access tokens and request tokens
-    protected $key;
-    protected $secret;
-
     /**
-     * key = the token
-     * secret = the token secret
+     * Constructs a new client object and populates the required parameters.
+     *
+     * @param string $key    Client key / identifier.
+     * @param string $secret Client shared-secret.
      */
     public function __construct($key, $secret)
     {
-        $this->key = $key;
-        $this->secret = $secret;
-    }
-
-    public function getKey()
-    {
-        return $this->key;
-    }
-
-    public function getSecret()
-    {
-        return $this->secret;
+        $this->setKey($key);
+        $this->setSecret($secret);
     }
 
     /**
-     * generates the basic string serialization of a token that a server
-     * would respond to request_token and access_token calls with
+     * Generates the basic string serialization of a token that a server
+     * would respond to request_token and access_token calls with.
+     *
+     * @return string
      */
     public function toString()
     {
         return 'oauth_token=' . Util::urlencodeRfc3986($this->key) .
             '&oauth_token_secret=' . Util::urlencodeRfc3986($this->secret);
-    }
-
-    public function __toString()
-    {
-        return $this->toString();
     }
 }

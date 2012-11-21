@@ -1,8 +1,31 @@
 <?php
+/**
+ * OAuth
+ *
+ * @package OAuth
+ * @author Andy Smith
+ * @author Gary Jones <gary@garyjones.co.uk>
+ * @license https://raw.github.com/GaryJones/OAuth/master/LICENSE MIT
+ * @link https://github.com/GaryJones/OAuth
+ */
+
 namespace GaryJones\OAuth;
 
+/**
+ * Group of static utility methods.
+ *
+ * @package OAuth
+ * @author Andy Smith
+ */
 class Util
 {
+    /**
+     * Encode a string according to RFC 3986.
+     *
+     * @param string $input
+     *
+     * @return string Encoded string.
+     */
     public static function urlencodeRfc3986($input)
     {
         if (is_array($input)) {
@@ -14,19 +37,34 @@ class Util
         }
     }
 
-    // This decode function isn't taking into consideration the above
-    // modifications to the encoding process. However, this method doesn't
-    // seem to be used anywhere so leaving it as is.
+    /**
+     * Decode a string.
+     *
+     * This decode function isn't taking into consideration the above modifications to the encoding process.
+     * However, this method doesn't seem to be used anywhere so leaving it as is.
+     *
+     * @param string $string
+     *
+     * @return string Decoded string.
+     */
     public static function urldecodeRfc3986($string)
     {
         return urldecode($string);
     }
 
-    // Utility function for turning the Authorization: header into
-    // parameters, has to do some unescaping
-    // Can filter out any non-oauth parameters if needed (default behaviour)
-    // May 28th, 2010 - method updated to tjerk.meesters for a speed improvement.
-    //                  see http://code.google.com/p/oauth/issues/detail?id=163
+    /**
+     * Utility function for turning the Authorization: header into parameters.
+     *
+     * Has to do some unescaping. Can filter out any non-oauth parameters if needed (default behaviour).
+     *
+     * May 28th, 2010 - method updated to tjerk.meesters for a speed improvement.
+     *                  see http://code.google.com/p/oauth/issues/detail?id=163
+     *
+     * @param string $header
+     * @param bool   $only_allow_oauth_parameters
+     *
+     * @return array
+     */
     public static function splitHeader($header, $only_allow_oauth_parameters = true)
     {
         $params = array();
@@ -42,9 +80,14 @@ class Util
         return $params;
     }
 
-    // helper to try to sort out headers for people who aren't running apache
+    /**
+     * Helper to try to sort out headers for people who aren't running apache
+     *
+     * @return array
+     */
     public static function getHeaders()
     {
+        $out = array();
         if (function_exists('apache_request_headers')) {
             // we need this to get the actual Authorization: header
             // because apache tends to tell us it doesn't exist
@@ -54,7 +97,6 @@ class Util
             // we always want the keys to be Cased-Like-This and arh()
             // returns the headers in the same case as they are in the
             // request
-            $out = array();
             foreach ($headers as $key => $value) {
                 $key = str_replace(' ', '-', ucwords(strtolower(str_replace('-', ' ', $key))));
                 $out[$key] = $value;
@@ -62,7 +104,6 @@ class Util
         } else {
             // otherwise we don't have apache and are just going to have to hope
             // that $_SERVER actually contains what we need
-            $out = array();
             if (isset($_SERVER['CONTENT_TYPE'])) {
                 $out['Content-Type'] = $_SERVER['CONTENT_TYPE'];
             }
@@ -83,9 +124,17 @@ class Util
         return $out;
     }
 
-    // This function takes a input like a=b&a=c&d=e and returns the parsed
-    // parameters like this
-    // array('a' => array('b','c'), 'd' => 'e')
+    /**
+     * Pull key=value querystring into an array.
+     *
+     * This function takes a input like a=b&a=c&d=e and returns the parsed
+     * parameters like this
+     * array('a' => array('b','c'), 'd' => 'e')
+     *
+     * @param string $input
+     *
+     * @return array
+     */
     public static function parseParameters($input)
     {
         if (!isset($input) || !$input) {
@@ -118,7 +167,14 @@ class Util
         return $parsed_parameters;
     }
 
-    public static function buildHttpQuery($params)
+    /**
+     * Build query string from parameters, with correct encoding.
+     *
+     * @param array $params
+     *
+     * @return string
+     */
+    public static function buildHttpQuery(array $params)
     {
         if (!$params) {
             return '';

@@ -1,30 +1,35 @@
 <?php
+/**
+ * OAuth
+ *
+ * @package OAuth
+ * @author Andy Smith
+ * @author Gary Jones <gary@garyjones.co.uk>
+ * @license https://raw.github.com/GaryJones/OAuth/master/LICENSE MIT
+ * @link https://github.com/GaryJones/OAuth
+ */
+
 namespace GaryJones\OAuth;
 
-class Client
+/**
+ * Client holds the properties of a single client / consumer.
+ *
+ * @package OAuth
+ * @author Gary Jones <gary@garyjones.co.uk>
+ */
+class Client extends Credential
 {
-    protected $key;
-    protected $secret;
-
+    /**
+     * Constructs a new client object and populates the required parameters.
+     *
+     * @param string $key          Client key / identifier.
+     * @param string $secret       Client shared-secret.
+     * @param string $callback_url URL to which authorized request will redirect to.
+     */
     public function __construct($key, $secret, $callback_url = null)
     {
-        $this->key = $key;
-        $this->secret = $secret;
+        $this->setKey($key);
+        $this->setSecret($secret);
         $this->callback_url = $callback_url;
-    }
-
-    public function getKey()
-    {
-        return $this->key;
-    }
-
-    public function getSecret()
-    {
-        return $this->secret;
-    }
-
-    public function __toString()
-    {
-        return "OAuthClient[key=$this->key,secret=$this->secret]";
     }
 }
