@@ -17,6 +17,6 @@ namespace GaryJones\OAuth;
  * @package OAuth
  * @author Andy Smith
  */
-class Exception extends \Exception
+class OAuthException extends \Exception
 {
 }

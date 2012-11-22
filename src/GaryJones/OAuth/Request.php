@@ -329,7 +329,7 @@ class Request
      *
      * @return string
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     public function toHeader($realm = null)
     {
@@ -347,7 +347,7 @@ class Request
                 continue;
             }
             if (is_array($v)) {
-                throw new Exception('Arrays not supported in headers');
+                throw new OAuthException('Arrays not supported in headers');
             }
             $out .= ($first) ? ' ' : ',';
             $out .= Util::urlencodeRfc3986($k) .

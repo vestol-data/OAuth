@@ -149,7 +149,7 @@ class Server
      *
      * @return string
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function getVersion(Request &$request)
     {
@@ -160,7 +160,7 @@ class Server
             $version = '1.0';
         }
         if ($version !== $this->version) {
-            throw new Exception("OAuth version '$version' not supported");
+            throw new OAuthException("OAuth version '$version' not supported");
         }
         return $version;
     }
@@ -172,7 +172,7 @@ class Server
      *
      * @return string Signature method name.
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function getSignatureMethod(Request $request)
     {
@@ -181,11 +181,11 @@ class Server
         if (!$signature_method) {
             // According to chapter 7 ("Accessing Protected Resources") the signature-method
             // parameter is required, and we can't just fallback to PLAINTEXT
-            throw new Exception('No signature method parameter. This parameter is required');
+            throw new OAuthException('No signature method parameter. This parameter is required');
         }
 
         if (!in_array($signature_method, array_keys($this->signature_methods))) {
-            throw new Exception(
+            throw new OAuthException(
                 "Signature method '$signature_method' not supported, try one of the following: " .
                 implode(", ", array_keys($this->signature_methods))
             );
@@ -200,19 +200,19 @@ class Server
      *
      * @return GaryJones\OAuth\Client
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function getClient(Request $request)
     {
         $client_key = $request instanceof Request ? $request->getParameter('oauth_consumer_key') : null;
 
         if (!$client_key) {
-            throw new Exception('Invalid client key');
+            throw new OAuthException('Invalid client key');
         }
 
         $client = $this->data_store->lookupClient($client_key);
         if (!$client) {
-            throw new Exception('Invalid client');
+            throw new OAuthException('Invalid client');
         }
 
         return $client;
@@ -227,7 +227,7 @@ class Server
      *
      * @return GaryJones\OAuth\Token
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function getToken(Request $request, Client $client, $token_type = 'access')
     {
@@ -235,7 +235,7 @@ class Server
 
         $token = $this->data_store->lookupToken($client, $token_type, $token_field);
         if (!$token) {
-            throw new Exception("Invalid $token_type token: $token_field");
+            throw new OAuthException("Invalid $token_type token: $token_field");
         }
         return $token;
     }
@@ -249,7 +249,7 @@ class Server
      * @param GaryJones\OAuth\Client  $client
      * @param GaryJones\OAuth\Token   $token
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function checkSignature(Request $request, Client $client, Token $token)
     {
@@ -266,7 +266,7 @@ class Server
         $valid_sig = $signature_method->checkSignature($request, $client, $token, $signature);
 
         if (!$valid_sig) {
-            throw new Exception('Invalid signature');
+            throw new OAuthException('Invalid signature');
         }
     }
 
@@ -275,18 +275,18 @@ class Server
      *
      * @param int $timestamp
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function checkTimestamp($timestamp)
     {
         if (!$timestamp) {
-            throw new Exception('Missing timestamp parameter. The parameter is required');
+            throw new OAuthException('Missing timestamp parameter. The parameter is required');
         }
 
         // verify that timestamp is recentish
         $now = time();
         if (abs($now - $timestamp) > $this->timestamp_threshold) {
-            throw new Exception("Expired timestamp, yours $timestamp, ours $now");
+            throw new OAuthException("Expired timestamp, yours $timestamp, ours $now");
         }
     }
 
@@ -298,18 +298,18 @@ class Server
      * @param string                 $nonce
      * @param int                    $timestamp
      *
-     * @throws GaryJones\OAuth\Exception
+     * @throws GaryJones\OAuth\OAuthException
      */
     private function checkNonce(Client $client, Token $token, $nonce, $timestamp)
     {
         if (!$nonce) {
-            throw new Exception('Missing nonce parameter. The parameter is required');
+            throw new OAuthException('Missing nonce parameter. The parameter is required');
         }
 
         // verify that the nonce is uniqueish
         $found = $this->data_store->lookupNonce($client, $token, $nonce, $timestamp);
         if ($found) {
-            throw new Exception('Nonce already used: ' . $nonce);
+            throw new OAuthException('Nonce already used: ' . $nonce);
         }
     }
 }
