@@ -50,7 +50,7 @@ class PlainText extends SignatureMethod
      *
      * @return string
      */
-    public function buildSignature(Request $request, Client $client, Token $token)
+    public function buildSignature(Request $request, Client $client, Token $token = null)
     {
         $key_parts = array(
             $client->getSecret(),

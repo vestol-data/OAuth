@@ -42,7 +42,7 @@ abstract class SignatureMethod
      *
      * @return string
      */
-    abstract public function buildSignature(Request $request, Client $client, Token $token);
+    abstract public function buildSignature(Request $request, Client $client, Token $token = null);
 
     /**
      * Verifies that a given signature is correct.
