@@ -20,6 +20,13 @@ namespace GaryJones\OAuth;
 class Client extends Credential
 {
     /**
+     * URL to which authorized requests will redirect to.
+     *
+     * @var string
+     */
+    protected $callback_url;
+
+    /**
      * Constructs a new client object and populates the required parameters.
      *
      * @param string $key          Client key / identifier.
@@ -30,6 +37,26 @@ class Client extends Credential
     {
         $this->setKey($key);
         $this->setSecret($secret);
+        $this->setCallbackUrl($callback_url);
+    }
+
+    /**
+     * Get the callback URL.
+     *
+     * @return string
+     */
+    public function getCallbackUrl()
+    {
+        return $this->callback_url;
+    }
+
+    /**
+     * Set the callbackURL
+     *
+     * @param string $callback_url
+     */
+    public function setCallbackUrl($callback_url)
+    {
         $this->callback_url = $callback_url;
     }
 }
