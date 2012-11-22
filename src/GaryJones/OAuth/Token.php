@@ -14,7 +14,7 @@ namespace GaryJones\OAuth;
 /**
  * Token holds the properties of a single token.
  *
- * This class deals with both temporary (request) and token (access) credntials.
+ * This class deals with both temporary (request) and token (access) credentials.
  *
  * @package OAuth
  * @author Gary Jones <gary@garyjones.co.uk>
