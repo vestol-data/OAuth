@@ -288,9 +288,11 @@ class Request
         // $host = (isset($parts['host'])) ? explode(':', $parts['host'])[0] : '';
         $path = (isset($parts['path'])) ? $parts['path'] : '';
 
-        if (($scheme == 'https' && $port != '443')
-            || ($scheme == 'http' && $port != '80')) {
-            $host = "$host:$port";
+        if ($port) {
+            if (('https' == $scheme && $port != '443')
+                || ('http' == $scheme && $port != '80')) {
+                $host = "$host:$port";
+            }
         }
         return "$scheme://$host$path";
     }
