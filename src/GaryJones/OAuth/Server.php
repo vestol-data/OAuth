@@ -88,7 +88,7 @@ class Server
         $client = $this->getClient($request);
 
         // no token required for the initial token request
-        $token = null;
+        $token = new NullToken;
 
         $this->checkSignature($request, $client, $token);
 
