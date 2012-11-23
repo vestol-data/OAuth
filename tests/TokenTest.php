@@ -1,6 +1,7 @@
 <?php
 
 use GaryJones\OAuth\Token;
+use GaryJones\OAuth\NullToken;
 use GaryJones\OAuth\Util;
 
 class TokenTest extends PHPUnit_Framework_TestCase
@@ -18,5 +19,12 @@ class TokenTest extends PHPUnit_Framework_TestCase
         $string = 'oauth_token=' . Util::urlencodeRfc3986('foo') .
             '&oauth_token_secret=' . Util::urlencodeRfc3986('bar');
         $this->assertEquals($string, $token->toString());
+    }
+
+    public function testNullTokenKeyAndSecretAreEmpty()
+    {
+        $token = new NullToken();
+        $this->assertEmpty($token->getKey());
+        $this->assertEmpty($token->getSecret());
     }
 }
