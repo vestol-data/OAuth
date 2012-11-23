@@ -45,6 +45,25 @@ abstract class SignatureMethod
     abstract public function buildSignature(Request $request, Client $client, Token $token = null);
 
     /**
+     * Get the signature key, made up of client and optionally token shared secrets.
+     *
+     * @param GaryJones\OAuth\Client  $client
+     * @param GaryJones\OAuth\Token   $token
+     *
+     * @return string
+     */
+    public function getSignatureKey(Client $client, Token $token = null)
+    {
+        $key_parts = array(
+            $client->getSecret(),
+            ($token) ? $token->getSecret() : '',
+        );
+
+        $key_parts = Util::urlencodeRfc3986($key_parts);
+        return implode('&', $key_parts);
+    }
+
+    /**
      * Verifies that a given signature is correct.
      *
      * @param GaryJones\OAuth\Request  $request

@@ -55,15 +55,7 @@ class HmacSha1 extends SignatureMethod
     public function buildSignature(Request $request, Client $client, Token $token = null)
     {
         $base_string = $request->getSignatureBaseString();
-        $request->base_string = $base_string;
-
-        $key_parts = array(
-            $client->getSecret(),
-            ($token) ? $token->getSecret() : ''
-        );
-
-        $key_parts = Util::urlencodeRfc3986($key_parts);
-        $key = implode('&', $key_parts);
+        $key = $this->getSignatureKey($client, $token);
 
         return base64_encode(hash_hmac('sha1', $base_string, $key, true));
     }

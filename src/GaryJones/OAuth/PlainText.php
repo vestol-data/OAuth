@@ -52,15 +52,6 @@ class PlainText extends SignatureMethod
      */
     public function buildSignature(Request $request, Client $client, Token $token = null)
     {
-        $key_parts = array(
-            $client->getSecret(),
-            ($token) ? $token->getSecret() : ''
-        );
-
-        $key_parts = Util::urlencodeRfc3986($key_parts);
-        $key = implode('&', $key_parts);
-        $request->base_string = $key;
-
-        return $key;
+        return $this->getSignatureKey($client, $token);
     }
 }
