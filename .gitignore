@@ -1,6 +1,5 @@
 *.swp
 composer.phar
 composer.lock
-/nbproject/private/
-/vendor/
-/nbproject/
+vendor
+nbproject
