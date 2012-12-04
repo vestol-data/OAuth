@@ -10,3 +10,4 @@ before_script:
 
 notifications:
   irc: "irc.freenode.org#garyj"
+  email: false
