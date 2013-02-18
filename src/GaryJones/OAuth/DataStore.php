@@ -31,10 +31,10 @@ interface DataStore
      * Validate a token.
      *
      * @param GaryJones\OAuth\Client $client
-     * @param GaryJones\OAuth\Token  $token
      * @param string                 $token_type Request or access token
+     * @param string                 $token_key  Token key
      */
-    public function lookupToken(Client $client, Token $token, $token_type);
+    public function lookupToken(Client $client, $token_type, $token_key);
 
     /**
      * Validate that a nonce has not been used with the same timestamp before.
