@@ -121,7 +121,7 @@ class Server
         // Rev A change
         $verifier = $request->getParameter('oauth_verifier');
 
-        return $this->data_store->newAccessToken($token, $client, $verifier);
+        return $this->data_store->newAccessToken($client, $token, $verifier);
     }
 
     /**
